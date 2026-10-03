@@ -42,21 +42,21 @@ Clothing-Care-AI/
 
 ## How It Works
 ```text
-**Upload Image**  
-↓  
-**OCR Text Extraction**  
-↓  
-**Text Cleaning**  
-↓  
-**Fabric Detection**  
-↓  
-**Care Symbol Detection**  
-↓  
-**Care Instruction Analysis**  
-↓  
-**Care Alerts**  
-↓  
-**Final Care Report**
+Upload Image
+     ↓
+OCR Text Extraction
+     ↓
+Text Cleaning
+     ↓
+Fabric Detection
+     ↓
+Care Symbol Detection
+     ↓
+Care Instruction Analysis
+     ↓
+Care Alerts
+     ↓
+Final Care Report
 ```
 Installation
 
