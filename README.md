@@ -41,7 +41,7 @@ Clothing-Care-AI/
 ```
 
 ## How It Works
-
+```text
 **Upload Image**  
 ↓  
 **OCR Text Extraction**  
@@ -57,23 +57,28 @@ Clothing-Care-AI/
 **Care Alerts**  
 ↓  
 **Final Care Report**
+```
 Installation
 
 Install the required Python packages:
 
-pip install -r requirements.txt
-
+```text
+pip install -r requirements.tx
+```
 Make sure Tesseract OCR is installed on the system.
 
 Run the Application
-streamlit run app.py
 
+```text
+streamlit run app.py
+```
 The application will open in the browser.
 
 Example
 
 The application can identify information such as:
 
+```text
 98% Cotton
 2% Elastane
 
@@ -82,7 +87,7 @@ Do Not Bleach
 Tumble Dry Low
 Iron Low
 Dry Clean
-
+```
 It then converts these instructions into simple clothing-care recommendations.
 
 Deployment
