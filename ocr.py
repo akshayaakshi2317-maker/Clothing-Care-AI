@@ -1,17 +1,30 @@
-import pytesseract
+import os
 import re
+import shutil
+import pytesseract
 
 from PIL import Image, ImageEnhance, ImageFilter, ImageOps
 
 
-pytesseract.pytesseract.tesseract_cmd = (
-    r"C:\Program Files\Tesseract-OCR\tesseract.exe"
-)
+# -------------------------------
+# Tesseract Configuration
+# -------------------------------
+
+tesseract_path = shutil.which("tesseract")
+
+if tesseract_path:
+    pytesseract.pytesseract.tesseract_cmd = tesseract_path
+
+elif os.name == "nt":
+    windows_path = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+
+    if os.path.exists(windows_path):
+        pytesseract.pytesseract.tesseract_cmd = windows_path
 
 
-# --------------------------------------------------
-# CLEAN OCR TEXT
-# --------------------------------------------------
+# -------------------------------
+# Clean OCR Text
+# -------------------------------
 
 def clean_text(text):
 
@@ -24,17 +37,14 @@ def clean_text(text):
         if not line:
             continue
 
-        # Common OCR corrections
         line = line.replace("DONOT", "DO NOT")
         line = line.replace("IRONLOW", "IRON LOW")
         line = line.replace("WASHCOLD", "WASH COLD")
         line = line.replace("TUMBLEDRY", "TUMBLE DRY")
         line = line.replace("DRYCLEAN", "DRY CLEAN")
 
-        # Remove extra spaces
         line = re.sub(r"\s+", " ", line)
 
-        # Keep useful clothing-related text
         keywords = [
             "COTTON",
             "ELASTANE",
@@ -57,18 +67,15 @@ def clean_text(text):
             "VIETNAM"
         ]
 
-        # Check percentage composition
         has_percentage = bool(
             re.search(r"\d+\s*%", line)
         )
 
-        # Check useful keyword
         has_keyword = any(
             word in line.upper()
             for word in keywords
         )
 
-        # Ignore small OCR noise
         if has_percentage or has_keyword:
 
             if line not in lines:
@@ -77,41 +84,30 @@ def clean_text(text):
     return "\n".join(lines)
 
 
-# --------------------------------------------------
-# OCR EXTRACTION
-# --------------------------------------------------
+# -------------------------------
+# OCR Extraction
+# -------------------------------
 
 def extract_text(image):
 
-    # Convert to grayscale
+    # Convert image to grayscale
     gray = ImageOps.grayscale(image)
 
-
-    # Increase image size
+    # Resize image for better OCR
     width, height = gray.size
 
     gray = gray.resize(
         (width * 2, height * 2)
     )
 
-
     # Improve contrast
-    gray = ImageEnhance.Contrast(
-        gray
-    ).enhance(2.5)
-
+    gray = ImageEnhance.Contrast(gray).enhance(2.5)
 
     # Improve sharpness
-    gray = ImageEnhance.Sharpness(
-        gray
-    ).enhance(2.0)
+    gray = ImageEnhance.Sharpness(gray).enhance(2.0)
 
-
-    # Sharpen image
-    gray = gray.filter(
-        ImageFilter.SHARPEN
-    )
-
+    # Apply sharpening filter
+    gray = gray.filter(ImageFilter.SHARPEN)
 
     # OCR
     text = pytesseract.image_to_string(
@@ -119,9 +115,7 @@ def extract_text(image):
         config="--psm 6"
     )
 
-
-    # Clean OCR output
+    # Clean OCR result
     text = clean_text(text)
-
 
     return text.strip()
