@@ -2,6 +2,10 @@
 
 An OCR-based Streamlit application that extracts clothing care label information from images and provides easy-to-understand care instructions.
 
+## Live Demo
+
+https://clothing-care-ai-ivzeyty9rtmyx9njgpf84j.streamlit.app/
+
 ## Features
 
 - Upload clothing care label images
