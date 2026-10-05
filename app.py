@@ -1,4 +1,5 @@
 import re
+
 import streamlit as st
 from PIL import Image
 
@@ -7,31 +8,26 @@ from symbol_detection import detect_symbols
 
 
 # ============================================================
-# PAGE CONFIGURATION
+# PAGE
 # ============================================================
 
 st.set_page_config(
     page_title="AI-Powered Clothing Care Label Assistant",
+    page_icon=None,
     layout="wide"
 )
 
 
 # ============================================================
-# CUSTOM CSS
+# CSS
 # ============================================================
 
 st.markdown("""
 <style>
 
-/* =========================================================
-   MAIN TITLE
-   ========================================================= */
-
 .main-title {
     font-size: 38px;
     font-weight: 800;
-    color: #ffffff;
-    margin-bottom: 8px;
 
     background: linear-gradient(
         90deg,
@@ -44,22 +40,17 @@ st.markdown("""
     -webkit-text-fill-color: transparent;
 }
 
-.main-description {
+.subtitle {
     color: #b8c0cc;
     font-size: 16px;
     margin-bottom: 25px;
 }
 
-
-/* =========================================================
-   MAIN CONTAINER
-   ========================================================= */
-
-.info-container {
+.section {
     background: linear-gradient(
         145deg,
         #151a26,
-        #1b2230
+        #1e293b
     );
 
     border: 1px solid #39445a;
@@ -68,41 +59,31 @@ st.markdown("""
 
     padding: 24px;
 
-    margin-top: 18px;
-    margin-bottom: 28px;
+    margin: 20px 0;
 
     box-shadow:
-        0 8px 25px rgba(0, 0, 0, 0.25);
+        0 8px 25px rgba(0,0,0,0.25);
 }
 
-
-/* =========================================================
-   SECTION TITLE
-   ========================================================= */
-
 .section-title {
+    color: white;
+
     font-size: 25px;
+
     font-weight: 800;
 
-    color: #ffffff;
+    margin-bottom: 18px;
 
-    margin-bottom: 20px;
-
-    border-bottom: 1px solid #343d50;
+    border-bottom: 1px solid #3b4558;
 
     padding-bottom: 10px;
 }
 
-
-/* =========================================================
-   FABRIC INFORMATION
-   ========================================================= */
-
-.fabric-card {
+.fabric {
     background: linear-gradient(
         135deg,
         #075985,
-        #0e7490
+        #0891b2
     );
 
     border: 1px solid #38bdf8;
@@ -111,109 +92,71 @@ st.markdown("""
 
     padding: 20px;
 
-    color: #ffffff;
+    color: white;
 
     font-size: 21px;
-    font-weight: 700;
 
-    box-shadow:
-        0 6px 20px rgba(14, 165, 233, 0.20);
+    font-weight: 700;
 }
 
-
-/* =========================================================
-   CARE INSTRUCTION CARDS
-   ========================================================= */
-
-.care-card {
+.washing {
     background: linear-gradient(
         135deg,
         #1e3a8a,
         #2563eb
     );
-
-    border-radius: 14px;
-
-    padding: 17px 20px;
-
-    margin: 12px 0;
-
-    color: #ffffff;
-
-    font-size: 16px;
-
-    border: 1px solid #60a5fa;
-
-    box-shadow:
-        0 5px 15px rgba(37, 99, 235, 0.18);
 }
 
-
-/* =========================================================
-   BLEACH
-   ========================================================= */
-
-.bleach-card {
+.bleaching {
     background: linear-gradient(
         135deg,
         #7f1d1d,
         #dc2626
     );
-
-    border-color: #f87171;
 }
 
-
-/* =========================================================
-   DRYING
-   ========================================================= */
-
-.drying-card {
+.drying {
     background: linear-gradient(
         135deg,
         #78350f,
         #d97706
     );
-
-    border-color: #fbbf24;
 }
 
-
-/* =========================================================
-   IRONING
-   ========================================================= */
-
-.ironing-card {
+.ironing {
     background: linear-gradient(
         135deg,
         #4c1d95,
         #7c3aed
     );
-
-    border-color: #a78bfa;
 }
 
-
-/* =========================================================
-   DRY CLEANING
-   ========================================================= */
-
-.cleaning-card {
+.cleaning {
     background: linear-gradient(
         135deg,
         #14532d,
         #16a34a
     );
-
-    border-color: #4ade80;
 }
 
+.card {
+    border-radius: 14px;
 
-/* =========================================================
-   CARE SYMBOLS
-   ========================================================= */
+    padding: 17px 20px;
 
-.symbol-card {
+    margin: 11px 0;
+
+    color: white;
+
+    border: 1px solid #64748b;
+
+    font-size: 16px;
+
+    box-shadow:
+        0 5px 15px rgba(0,0,0,0.20);
+}
+
+.symbol {
     background: linear-gradient(
         135deg,
         #312e81,
@@ -226,23 +169,14 @@ st.markdown("""
 
     padding: 16px 20px;
 
-    margin: 11px 0;
+    margin: 10px 0;
 
-    color: #ffffff;
+    color: white;
 
-    font-size: 16px;
     font-weight: 600;
-
-    box-shadow:
-        0 5px 16px rgba(79, 70, 229, 0.20);
 }
 
-
-/* =========================================================
-   ALERTS
-   ========================================================= */
-
-.alert-card {
+.alert {
     background: linear-gradient(
         135deg,
         #78350f,
@@ -255,23 +189,14 @@ st.markdown("""
 
     padding: 16px 20px;
 
-    margin: 11px 0;
+    margin: 10px 0;
 
-    color: #ffffff;
+    color: white;
 
-    font-size: 16px;
     font-weight: 600;
-
-    box-shadow:
-        0 5px 18px rgba(234, 88, 12, 0.20);
 }
 
-
-/* =========================================================
-   FINAL REPORT
-   ========================================================= */
-
-.report-card {
+.report {
     background: linear-gradient(
         145deg,
         #111827,
@@ -288,169 +213,22 @@ st.markdown("""
 
     line-height: 1.8;
 
-    font-size: 16px;
-
     box-shadow:
-        0 8px 25px rgba(0, 0, 0, 0.30);
+        0 8px 25px rgba(0,0,0,0.3);
 }
 
-
 .report-heading {
-    font-size: 19px;
+    color: #93c5fd;
+
+    font-size: 18px;
 
     font-weight: 800;
 
-    margin-top: 18px;
-    margin-bottom: 7px;
-
-    color: #93c5fd;
+    border-left: 4px solid #a78bfa;
 
     padding-left: 10px;
 
-    border-left: 4px solid #a78bfa;
-}
-
-
-/* =========================================================
-   OCR CONTAINER
-   ========================================================= */
-
-.ocr-container {
-    background: linear-gradient(
-        145deg,
-        #172033,
-        #1e293b
-    );
-
-    border: 1px solid #475569;
-
-    border-radius: 18px;
-
-    padding: 24px;
-
-    margin-top: 18px;
-    margin-bottom: 28px;
-}
-
-
-/* =========================================================
-   UPLOAD AREA
-   ========================================================= */
-
-.upload-container {
-    background: linear-gradient(
-        135deg,
-        #172554,
-        #312e81
-    );
-
-    border: 1px solid #6366f1;
-
-    border-radius: 18px;
-
-    padding: 22px;
-
-    margin-bottom: 25px;
-
-    box-shadow:
-        0 8px 25px rgba(79, 70, 229, 0.20);
-}
-
-
-/* =========================================================
-   DOWNLOAD BUTTON
-   ========================================================= */
-
-.stDownloadButton > button {
-
-    background: linear-gradient(
-        90deg,
-        #2563eb,
-        #7c3aed,
-        #db2777
-    );
-
-    color: white;
-
-    border: none;
-
-    border-radius: 12px;
-
-    padding: 12px 25px;
-
-    font-size: 16px;
-
-    font-weight: 700;
-
-    box-shadow:
-        0 5px 18px rgba(124, 58, 237, 0.30);
-}
-
-
-/* =========================================================
-   TEXT AREA
-   ========================================================= */
-
-textarea {
-
-    border-radius: 12px !important;
-
-    border: 1px solid #475569 !important;
-
-    background: #111827 !important;
-
-    color: #f8fafc !important;
-}
-
-
-/* =========================================================
-   FILE UPLOADER
-   ========================================================= */
-
-[data-testid="stFileUploader"] {
-
-    background: rgba(255, 255, 255, 0.03);
-
-    border-radius: 12px;
-
-    padding: 8px;
-}
-
-
-/* =========================================================
-   IMAGE
-   ========================================================= */
-
-[data-testid="stImage"] img {
-
-    border-radius: 16px;
-
-    border: 2px solid #334155;
-
-    box-shadow:
-        0 8px 25px rgba(0, 0, 0, 0.35);
-}
-
-
-/* =========================================================
-   HEADINGS
-   ========================================================= */
-
-h1,
-h2,
-h3 {
-
-    color: #ffffff !important;
-}
-
-
-/* =========================================================
-   STREAMLIT ALERT
-   ========================================================= */
-
-[data-testid="stAlert"] {
-
-    border-radius: 12px;
+    margin-top: 15px;
 }
 
 </style>
@@ -469,9 +247,8 @@ st.markdown(
 )
 
 st.markdown(
-    '<div class="main-description">'
-    'Upload a clothing care label image to extract fabric '
-    'information and understand the recommended care instructions.'
+    '<div class="subtitle">'
+    'OCR-based clothing label analysis and care recommendation system'
     '</div>',
     unsafe_allow_html=True
 )
@@ -483,7 +260,9 @@ st.markdown(
 
 def detect_fabric(text):
 
-    fabric_names = [
+    text = text.upper()
+
+    fabrics = [
         "COTTON",
         "POLYESTER",
         "VISCOSE",
@@ -498,59 +277,71 @@ def detect_fabric(text):
         "SPANDEX"
     ]
 
-    text_upper = text.upper()
+    found = []
 
-    detected = []
-
-    # Detect percentage + fabric
-    percentage_matches = re.findall(
+    # Percentage + fabric
+    matches = re.findall(
         r"(\d+)\s*%\s*([A-Z]+)",
-        text_upper
+        text
     )
 
-    for percentage, fabric in percentage_matches:
+    for percentage, fabric in matches:
 
-        if fabric in fabric_names:
+        if fabric in fabrics:
 
-            result = f"{percentage}% {fabric.title()}"
+            item = (
+                f"{percentage}% "
+                f"{fabric.title()}"
+            )
 
-            if result not in detected:
-                detected.append(result)
+            if item not in found:
 
-    # Detect fabric names without percentage
-    for fabric in fabric_names:
+                found.append(item)
 
-        if fabric in text_upper:
 
-            already_detected = False
+    # Denim (Cotton) case
+    if "DENIM" in text:
 
-            for item in detected:
+        if not any(
+            "Denim" in item
+            for item in found
+        ):
+
+            found.append(
+                "Denim"
+            )
+
+    # Other fabric names
+    for fabric in fabrics:
+
+        if fabric in text:
+
+            exists = False
+
+            for item in found:
 
                 if fabric.title() in item:
-                    already_detected = True
+
+                    exists = True
+
                     break
 
-            if not already_detected:
+            if not exists:
 
-                detected.append(fabric.title())
+                found.append(
+                    fabric.title()
+                )
 
-    # Remove duplicates
-    final_detected = []
 
-    for item in detected:
-
-        if item not in final_detected:
-            final_detected.append(item)
-
-    if not final_detected:
+    if not found:
 
         return "Fabric composition was not detected."
 
-    return " + ".join(final_detected)
+    return " + ".join(found)
 
 
 # ============================================================
-# WASHING ANALYSIS
+# WASHING
 # ============================================================
 
 def analyze_washing(text):
@@ -560,27 +351,41 @@ def analyze_washing(text):
     if "HAND WASH" in text:
 
         if "COLD" in text:
+
             return "Hand wash with cold water"
 
         return "Hand wash gently"
+
+    match = re.search(
+        r"WASH\s+AT\s+(\d+)\s*°?\s*C",
+        text
+    )
+
+    if match:
+
+        temperature = match.group(1)
+
+        return (
+            f"Wash at {temperature}°C"
+        )
 
     if "MACHINE WASH COLD" in text:
 
         return "Machine wash with cold water"
 
-    if "WASH AT 40" in text:
+    if "WASH COLD" in text:
 
-        return "Wash at 40°C"
-
-    if "WASH AT 30" in text:
-
-        return "Wash at 30°C"
+        return "Wash with cold water"
 
     if "MACHINE WASH" in text:
 
         return "Machine wash"
 
     if "WASH WITH SIMILAR COLOURS" in text:
+
+        return "Wash with similar colours"
+
+    if "WASH WITH SIMILAR COLORS" in text:
 
         return "Wash with similar colours"
 
@@ -592,18 +397,17 @@ def analyze_washing(text):
 
 
 # ============================================================
-# BLEACH ANALYSIS
+# BLEACH
 # ============================================================
 
 def analyze_bleach(text):
 
     text = text.upper()
 
-    if "DO NOT BLEACH" in text:
-
-        return "Do not use bleach"
-
-    if "NO BLEACH" in text:
+    if (
+        "DO NOT BLEACH" in text
+        or "NO BLEACH" in text
+    ):
 
         return "Do not use bleach"
 
@@ -615,7 +419,7 @@ def analyze_bleach(text):
 
 
 # ============================================================
-# DRYING ANALYSIS
+# DRYING
 # ============================================================
 
 def analyze_drying(text):
@@ -638,10 +442,6 @@ def analyze_drying(text):
 
         return "Tumble dry using high heat"
 
-    if "TUMBLE DRY" in text:
-
-        return "Tumble dry according to label instructions"
-
     if "DRY FLAT" in text:
 
         return "Dry flat"
@@ -650,11 +450,15 @@ def analyze_drying(text):
 
         return "Line dry"
 
+    if "TUMBLE DRY" in text:
+
+        return "Tumble dry according to label instructions"
+
     return "Drying instruction not detected"
 
 
 # ============================================================
-# IRONING ANALYSIS
+# IRONING
 # ============================================================
 
 def analyze_ironing(text):
@@ -679,7 +483,7 @@ def analyze_ironing(text):
 
     if "IRON ON REVERSE" in text:
 
-        return "Iron on reverse side"
+        return "Iron on the reverse side"
 
     if "IRON" in text:
 
@@ -689,10 +493,10 @@ def analyze_ironing(text):
 
 
 # ============================================================
-# DRY CLEANING ANALYSIS
+# DRY CLEANING
 # ============================================================
 
-def analyze_dry_cleaning(text):
+def analyze_cleaning(text):
 
     text = text.upper()
 
@@ -711,54 +515,60 @@ def analyze_dry_cleaning(text):
 # SPECIAL INSTRUCTIONS
 # ============================================================
 
-def detect_special_instructions(text):
+def special_instructions(text):
 
-    text_upper = text.upper()
+    text = text.upper()
 
-    special = []
+    results = []
 
-    if "WASH INSIDE OUT" in text_upper:
+    if "WASH WITH SIMILAR COLOURS" in text:
 
-        special.append(
-            "Wash the garment inside out."
-        )
-
-    if "DO NOT WRING" in text_upper:
-
-        special.append(
-            "Do not wring the garment."
-        )
-
-    if "WASH WITH SIMILAR COLOURS" in text_upper:
-
-        special.append(
+        results.append(
             "Wash with similar colours."
         )
 
-    if "IRON ON REVERSE" in text_upper:
+    if "WASH WITH SIMILAR COLORS" in text:
 
-        special.append(
+        results.append(
+            "Wash with similar colours."
+        )
+
+    if "WASH INSIDE OUT" in text:
+
+        results.append(
+            "Wash the garment inside out."
+        )
+
+    if "DO NOT WRING" in text:
+
+        results.append(
+            "Do not wring the garment."
+        )
+
+    if "IRON ON REVERSE" in text:
+
+        results.append(
             "Iron on the reverse side."
         )
 
-    return special
+    return results
 
 
 # ============================================================
-# CARE ALERTS
+# ALERTS
 # ============================================================
 
-def generate_alerts(
+def create_alerts(
     washing,
-    bleach,
+    bleaching,
     drying,
     ironing,
-    dry_cleaning
+    cleaning
 ):
 
     alerts = []
 
-    if "Do not use bleach" in bleach:
+    if "Do not use bleach" in bleaching:
 
         alerts.append(
             "Avoid using bleach."
@@ -824,412 +634,393 @@ def generate_alerts(
             "Line dry the garment."
         )
 
-    if not alerts:
-
-        alerts.append(
-            "Follow all care instructions shown on the label."
-        )
-
     return alerts
 
 
 # ============================================================
-# FINAL REPORT
+# UPLOAD
 # ============================================================
-
-def create_report(
-    fabric,
-    washing,
-    bleach,
-    drying,
-    ironing,
-    dry_cleaning,
-    alerts,
-    special
-):
-
-    report = f"""
-AI-POWERED CLOTHING CARE LABEL ASSISTANT
-
-========================================
-FABRIC INFORMATION
-========================================
-{fabric}
-
-========================================
-WASHING
-========================================
-{washing}
-
-========================================
-BLEACHING
-========================================
-{bleach}
-
-========================================
-DRYING
-========================================
-{drying}
-
-========================================
-IRONING
-========================================
-{ironing}
-
-========================================
-DRY CLEANING
-========================================
-{dry_cleaning}
-
-========================================
-SPECIAL INSTRUCTIONS
-========================================
-"""
-
-    if special:
-
-        for instruction in special:
-
-            report += f"- {instruction}\n"
-
-    else:
-
-        report += "No additional special instructions detected.\n"
-
-    report += """
-========================================
-IMPORTANT CARE ALERTS
-========================================
-"""
-
-    for alert in alerts:
-
-        report += f"- {alert}\n"
-
-    report += """
-========================================
-END OF REPORT
-========================================
-"""
-
-    return report.strip()
-
-
-# ============================================================
-# IMAGE UPLOAD
-# ============================================================
-
-st.markdown(
-    '<div class="upload-container">',
-    unsafe_allow_html=True
-)
 
 uploaded_file = st.file_uploader(
     "Upload Clothing Care Label Image",
-    type=["jpg", "jpeg", "png"]
-)
-
-st.markdown(
-    '</div>',
-    unsafe_allow_html=True
+    type=[
+        "jpg",
+        "jpeg",
+        "png"
+    ]
 )
 
 
 # ============================================================
-# PROCESS IMAGE
+# PROCESS
 # ============================================================
 
-if uploaded_file is not None:
+if uploaded_file:
 
-    image = Image.open(uploaded_file)
+    image = Image.open(
+        uploaded_file
+    ).convert("RGB")
 
-    # ========================================================
-    # UPLOADED IMAGE
-    # ========================================================
 
-    st.subheader("Uploaded Image")
+    # --------------------------------------------------------
+    # IMAGE
+    # --------------------------------------------------------
+
+    st.markdown(
+        '<div class="section">',
+        unsafe_allow_html=True
+    )
+
+    st.markdown(
+        '<div class="section-title">'
+        'Uploaded Image'
+        '</div>',
+        unsafe_allow_html=True
+    )
 
     st.image(
         image,
         width=500
     )
 
+    st.markdown(
+        '</div>',
+        unsafe_allow_html=True
+    )
 
-    # ========================================================
+
+    # --------------------------------------------------------
     # OCR
-    # ========================================================
+    # --------------------------------------------------------
 
-    with st.spinner("Extracting text from image..."):
+    with st.spinner(
+        "Analyzing clothing care label..."
+    ):
 
-        text = extract_text(image)
+        text = extract_text(
+            image
+        )
 
 
-    # ========================================================
-    # EXTRACTED TEXT
-    # ========================================================
+    # --------------------------------------------------------
+    # OCR OUTPUT
+    # --------------------------------------------------------
 
-    st.markdown("""
-    <div class="ocr-container">
+    st.markdown(
+        '<div class="section">',
+        unsafe_allow_html=True
+    )
 
-    <div class="section-title">
-    Extracted Text
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown(
+        '<div class="section-title">'
+        'Extracted Text'
+        '</div>',
+        unsafe_allow_html=True
+    )
 
     if text:
 
         st.text_area(
-            "OCR Output",
+            "OCR Result",
             text,
-            height=180
+            height=220
         )
 
     else:
 
         st.warning(
-            "No readable text was detected."
+            "No readable text detected."
         )
 
     st.markdown(
-        "</div>",
+        '</div>',
         unsafe_allow_html=True
     )
 
 
-    # ========================================================
-    # FABRIC INFORMATION
-    # ========================================================
+    # --------------------------------------------------------
+    # ANALYSIS
+    # --------------------------------------------------------
 
     fabric = detect_fabric(text)
 
-    st.markdown("""
-    <div class="info-container">
-
-    <div class="section-title">
-    Fabric Information
-    </div>
-
-    <div class="fabric-card">
-    """ + fabric + """
-    </div>
-
-    </div>
-    """, unsafe_allow_html=True)
-
-
-    # ========================================================
-    # CARE ANALYSIS
-    # ========================================================
-
     washing = analyze_washing(text)
 
-    bleach = analyze_bleach(text)
+    bleaching = analyze_bleach(text)
 
     drying = analyze_drying(text)
 
     ironing = analyze_ironing(text)
 
-    dry_cleaning = analyze_dry_cleaning(text)
+    cleaning = analyze_cleaning(text)
 
-    special = detect_special_instructions(text)
+    special = special_instructions(text)
+
+    alerts = create_alerts(
+        washing,
+        bleaching,
+        drying,
+        ironing,
+        cleaning
+    )
 
 
-    # ========================================================
+    # --------------------------------------------------------
+    # FABRIC
+    # --------------------------------------------------------
+
+    st.markdown(
+        f"""
+        <div class="section">
+
+        <div class="section-title">
+        Fabric Information
+        </div>
+
+        <div class="fabric">
+        {fabric}
+        </div>
+
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+
+    # --------------------------------------------------------
     # CARE INSTRUCTIONS
-    # ========================================================
+    # --------------------------------------------------------
 
-    st.markdown("""
-    <div class="info-container">
+    st.markdown(
+        '<div class="section">',
+        unsafe_allow_html=True
+    )
 
-    <div class="section-title">
-    Care Instructions
-    </div>
-
-    <div class="care-card">
-    <b>Washing</b><br>
-    """ + washing + """
-    </div>
-
-    <div class="care-card bleach-card">
-    <b>Bleaching</b><br>
-    """ + bleach + """
-    </div>
-
-    <div class="care-card drying-card">
-    <b>Drying</b><br>
-    """ + drying + """
-    </div>
-
-    <div class="care-card ironing-card">
-    <b>Ironing</b><br>
-    """ + ironing + """
-    </div>
-
-    <div class="care-card cleaning-card">
-    <b>Dry Cleaning</b><br>
-    """ + dry_cleaning + """
-    </div>
-
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown(
+        '<div class="section-title">'
+        'Care Instructions'
+        '</div>',
+        unsafe_allow_html=True
+    )
 
 
-    # ========================================================
+    st.markdown(
+        f"""
+        <div class="card washing">
+        <b>Washing</b><br>
+        {washing}
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+
+    st.markdown(
+        f"""
+        <div class="card bleaching">
+        <b>Bleaching</b><br>
+        {bleaching}
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+
+    st.markdown(
+        f"""
+        <div class="card drying">
+        <b>Drying</b><br>
+        {drying}
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+
+    st.markdown(
+        f"""
+        <div class="card ironing">
+        <b>Ironing</b><br>
+        {ironing}
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+
+    st.markdown(
+        f"""
+        <div class="card cleaning">
+        <b>Dry Cleaning</b><br>
+        {cleaning}
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+
+    st.markdown(
+        '</div>',
+        unsafe_allow_html=True
+    )
+
+
+    # --------------------------------------------------------
     # SPECIAL INSTRUCTIONS
-    # ========================================================
+    # --------------------------------------------------------
 
     if special:
 
-        st.markdown("""
-        <div class="info-container">
+        st.markdown(
+            '<div class="section">',
+            unsafe_allow_html=True
+        )
 
-        <div class="section-title">
-        Special Instructions
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown(
+            '<div class="section-title">'
+            'Special Instructions'
+            '</div>',
+            unsafe_allow_html=True
+        )
 
-        for instruction in special:
+        for item in special:
 
             st.markdown(
                 f"""
-                <div class="symbol-card">
-                {instruction}
+                <div class="symbol">
+                {item}
                 </div>
                 """,
                 unsafe_allow_html=True
             )
 
         st.markdown(
-            "</div>",
+            '</div>',
             unsafe_allow_html=True
         )
 
 
-    # ========================================================
-    # CARE SYMBOL DETECTION
-    # ========================================================
+    # --------------------------------------------------------
+    # SYMBOLS
+    # --------------------------------------------------------
 
-    st.markdown("""
-    <div class="info-container">
+    symbols = detect_symbols(
+        image,
+        text
+    )
 
-    <div class="section-title">
-    Care Symbol Detection
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown(
+        '<div class="section">',
+        unsafe_allow_html=True
+    )
 
-    try:
+    st.markdown(
+        '<div class="section-title">'
+        'Care Symbol Detection'
+        '</div>',
+        unsafe_allow_html=True
+    )
 
-        symbols = detect_symbols(
-            image,
-            text
-        )
+    if symbols:
 
-        if symbols:
-
-            for symbol in symbols:
-
-                st.markdown(
-                    f"""
-                    <div class="symbol-card">
-                    {symbol}
-                    </div>
-                    """,
-                    unsafe_allow_html=True
-                )
-
-        else:
+        for symbol in symbols:
 
             st.markdown(
-                """
-                <div class="symbol-card">
-                No care symbols detected.
+                f"""
+                <div class="symbol">
+                {symbol}
                 </div>
                 """,
                 unsafe_allow_html=True
             )
 
-    except Exception:
+    else:
 
         st.markdown(
             """
-            <div class="symbol-card">
-            Care symbol detection could not be completed.
+            <div class="symbol">
+            No care symbols detected.
             </div>
             """,
             unsafe_allow_html=True
         )
 
     st.markdown(
-        "</div>",
+        '</div>',
         unsafe_allow_html=True
     )
 
 
-    # ========================================================
-    # IMPORTANT CARE ALERTS
-    # ========================================================
+    # --------------------------------------------------------
+    # ALERTS
+    # --------------------------------------------------------
 
-    alerts = generate_alerts(
-        washing,
-        bleach,
-        drying,
-        ironing,
-        dry_cleaning
+    st.markdown(
+        '<div class="section">',
+        unsafe_allow_html=True
     )
 
-    st.markdown("""
-    <div class="info-container">
+    st.markdown(
+        '<div class="section-title">'
+        'Important Care Alerts'
+        '</div>',
+        unsafe_allow_html=True
+    )
 
-    <div class="section-title">
-    Important Care Alerts
-    </div>
-    """, unsafe_allow_html=True)
+    if alerts:
 
-    for alert in alerts:
+        for alert in alerts:
+
+            st.markdown(
+                f"""
+                <div class="alert">
+                {alert}
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+    else:
 
         st.markdown(
-            f"""
-            <div class="alert-card">
-            {alert}
+            """
+            <div class="alert">
+            Follow all care instructions shown on the label.
             </div>
             """,
             unsafe_allow_html=True
         )
 
     st.markdown(
-        "</div>",
+        '</div>',
         unsafe_allow_html=True
     )
 
 
-    # ========================================================
-    # FINAL REPORT TEXT
-    # ========================================================
+    # --------------------------------------------------------
+    # FINAL REPORT
+    # --------------------------------------------------------
 
-    report = create_report(
-        fabric,
-        washing,
-        bleach,
-        drying,
-        ironing,
-        dry_cleaning,
-        alerts,
-        special
+    st.markdown(
+        '<div class="section">',
+        unsafe_allow_html=True
     )
 
-
-    # ========================================================
-    # FINAL CARE REPORT
-    # ========================================================
+    st.markdown(
+        '<div class="section-title">'
+        'Final Care Report'
+        '</div>',
+        unsafe_allow_html=True
+    )
 
     special_html = ""
 
     if special:
 
-        for instruction in special:
+        for item in special:
 
             special_html += (
-                f"<li>{instruction}</li>"
+                f"<li>{item}</li>"
             )
 
     else:
@@ -1248,80 +1039,131 @@ if uploaded_file is not None:
         )
 
 
-    st.markdown("""
-    <div class="info-container">
+    st.markdown(
+        f"""
+        <div class="report">
 
-    <div class="section-title">
-    Final Care Report
-    </div>
+        <div class="report-heading">
+        Fabric Information
+        </div>
 
-    <div class="report-card">
+        {fabric}
 
-    <div class="report-heading">
-    Fabric Information
-    </div>
+        <div class="report-heading">
+        Washing
+        </div>
 
-    """ + fabric + """
+        {washing}
 
-    <div class="report-heading">
-    Washing
-    </div>
+        <div class="report-heading">
+        Bleaching
+        </div>
 
-    """ + washing + """
+        {bleaching}
 
-    <div class="report-heading">
-    Bleaching
-    </div>
+        <div class="report-heading">
+        Drying
+        </div>
 
-    """ + bleach + """
+        {drying}
 
-    <div class="report-heading">
-    Drying
-    </div>
+        <div class="report-heading">
+        Ironing
+        </div>
 
-    """ + drying + """
+        {ironing}
 
-    <div class="report-heading">
-    Ironing
-    </div>
+        <div class="report-heading">
+        Dry Cleaning
+        </div>
 
-    """ + ironing + """
+        {cleaning}
 
-    <div class="report-heading">
-    Dry Cleaning
-    </div>
+        <div class="report-heading">
+        Special Instructions
+        </div>
 
-    """ + dry_cleaning + """
+        <ul>
+        {special_html}
+        </ul>
 
-    <div class="report-heading">
-    Special Instructions
-    </div>
+        <div class="report-heading">
+        Important Care Alerts
+        </div>
 
-    <ul>
-    """ + special_html + """
-    </ul>
+        <ul>
+        {alerts_html}
+        </ul>
 
-    <div class="report-heading">
-    Important Care Alerts
-    </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
-    <ul>
-    """ + alerts_html + """
-    </ul>
-
-    </div>
-
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown(
+        '</div>',
+        unsafe_allow_html=True
+    )
 
 
-    # ========================================================
-    # DOWNLOAD REPORT
-    # ========================================================
+    # --------------------------------------------------------
+    # DOWNLOAD
+    # --------------------------------------------------------
+
+    report_text = f"""
+AI-POWERED CLOTHING CARE LABEL ASSISTANT
+
+FABRIC INFORMATION
+{fabric}
+
+WASHING
+{washing}
+
+BLEACHING
+{bleaching}
+
+DRYING
+{drying}
+
+IRONING
+{ironing}
+
+DRY CLEANING
+{cleaning}
+
+SPECIAL INSTRUCTIONS
+"""
+
+    if special:
+
+        for item in special:
+
+            report_text += (
+                f"- {item}\n"
+            )
+
+    else:
+
+        report_text += (
+            "No additional special instructions detected.\n"
+        )
+
+
+    report_text += """
+
+IMPORTANT CARE ALERTS
+"""
+
+    for alert in alerts:
+
+        report_text += (
+            f"- {alert}\n"
+        )
+
 
     st.download_button(
-        label="Download Care Report",
-        data=report,
+        "Download Care Report",
+        report_text,
         file_name="clothing_care_report.txt",
         mime="text/plain"
     )
