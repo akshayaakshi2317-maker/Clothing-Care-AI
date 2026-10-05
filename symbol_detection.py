@@ -1,6 +1,3 @@
-import re
-
-
 # ============================================================
 # CARE SYMBOL DETECTION
 # ============================================================
@@ -11,40 +8,38 @@ def detect_symbols(image, text=""):
 
     symbols = []
 
-
     # ========================================================
-    # WASHING
+    # WASHING SYMBOL
     # ========================================================
 
     if (
-        "WASH" in text
-        or "MACHINE WASH" in text
+        "MACHINE WASH" in text
         or "HAND WASH" in text
         or "WASH AT" in text
+        or "WASH COLD" in text
+        or "WASH WITH" in text
+        or "WASH" in text
     ):
 
         symbols.append(
             "Washing Symbol"
         )
 
-
     # ========================================================
-    # BLEACH
+    # BLEACH SYMBOL
     # ========================================================
 
     if (
         "DO NOT BLEACH" in text
         or "NO BLEACH" in text
-        or "BLEACH" in text
     ):
 
         symbols.append(
             "Do Not Bleach Symbol"
         )
 
-
     # ========================================================
-    # TUMBLE DRY
+    # TUMBLE DRY SYMBOL
     # ========================================================
 
     if (
@@ -56,9 +51,8 @@ def detect_symbols(image, text=""):
             "Tumble Drying Symbol"
         )
 
-
     # ========================================================
-    # DRY FLAT
+    # DRY FLAT SYMBOL
     # ========================================================
 
     if "DRY FLAT" in text:
@@ -67,9 +61,8 @@ def detect_symbols(image, text=""):
             "Dry Flat Symbol"
         )
 
-
     # ========================================================
-    # LINE DRY
+    # LINE DRY SYMBOL
     # ========================================================
 
     if "LINE DRY" in text:
@@ -78,23 +71,24 @@ def detect_symbols(image, text=""):
             "Line Dry Symbol"
         )
 
-
     # ========================================================
-    # IRON
+    # IRONING SYMBOL
     # ========================================================
 
     if (
-        "IRON" in text
+        "IRON LOW" in text
+        or "IRON MEDIUM" in text
+        or "IRON HIGH" in text
         or "DO NOT IRON" in text
+        or "IRON ON REVERSE" in text
     ):
 
         symbols.append(
             "Ironing Symbol"
         )
 
-
     # ========================================================
-    # DRY CLEAN
+    # DRY CLEANING SYMBOL
     # ========================================================
 
     if (
@@ -105,7 +99,6 @@ def detect_symbols(image, text=""):
         symbols.append(
             "Dry Cleaning Symbol"
         )
-
 
     # ========================================================
     # REMOVE DUPLICATES
