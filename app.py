@@ -8,34 +8,32 @@ from symbol_detection import detect_symbols
 
 
 # ============================================================
-# PAGE
+# PAGE CONFIGURATION
 # ============================================================
 
 st.set_page_config(
     page_title="AI-Powered Clothing Care Label Assistant",
-    page_icon=None,
     layout="wide"
 )
 
 
 # ============================================================
-# CSS
+# CUSTOM CSS
 # ============================================================
 
-st.markdown("""
+st.markdown(
+    """
 <style>
 
 .main-title {
     font-size: 38px;
     font-weight: 800;
-
     background: linear-gradient(
         90deg,
-        #60a5fa,
+        #38bdf8,
         #a78bfa,
         #f472b6
     );
-
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
@@ -49,11 +47,11 @@ st.markdown("""
 .section {
     background: linear-gradient(
         145deg,
-        #151a26,
+        #111827,
         #1e293b
     );
 
-    border: 1px solid #39445a;
+    border: 1px solid #475569;
 
     border-radius: 18px;
 
@@ -66,7 +64,7 @@ st.markdown("""
 }
 
 .section-title {
-    color: white;
+    color: #f8fafc;
 
     font-size: 25px;
 
@@ -74,9 +72,9 @@ st.markdown("""
 
     margin-bottom: 18px;
 
-    border-bottom: 1px solid #3b4558;
-
     padding-bottom: 10px;
+
+    border-bottom: 1px solid #475569;
 }
 
 .fabric {
@@ -97,6 +95,23 @@ st.markdown("""
     font-size: 21px;
 
     font-weight: 700;
+}
+
+.card {
+    border-radius: 14px;
+
+    padding: 18px 20px;
+
+    margin: 12px 0;
+
+    color: white;
+
+    border: 1px solid #64748b;
+
+    font-size: 16px;
+
+    box-shadow:
+        0 5px 15px rgba(0,0,0,0.20);
 }
 
 .washing {
@@ -137,23 +152,6 @@ st.markdown("""
         #14532d,
         #16a34a
     );
-}
-
-.card {
-    border-radius: 14px;
-
-    padding: 17px 20px;
-
-    margin: 11px 0;
-
-    color: white;
-
-    border: 1px solid #64748b;
-
-    font-size: 16px;
-
-    box-shadow:
-        0 5px 15px rgba(0,0,0,0.20);
 }
 
 .symbol {
@@ -199,7 +197,7 @@ st.markdown("""
 .report {
     background: linear-gradient(
         145deg,
-        #111827,
+        #0f172a,
         #1e293b
     );
 
@@ -212,9 +210,6 @@ st.markdown("""
     color: #f8fafc;
 
     line-height: 1.8;
-
-    box-shadow:
-        0 8px 25px rgba(0,0,0,0.3);
 }
 
 .report-heading {
@@ -232,7 +227,9 @@ st.markdown("""
 }
 
 </style>
-""", unsafe_allow_html=True)
+""",
+    unsafe_allow_html=True
+)
 
 
 # ============================================================
@@ -240,16 +237,20 @@ st.markdown("""
 # ============================================================
 
 st.markdown(
-    '<div class="main-title">'
-    'AI-Powered Clothing Care Label Assistant'
-    '</div>',
+    """
+<div class="main-title">
+AI-Powered Clothing Care Label Assistant
+</div>
+""",
     unsafe_allow_html=True
 )
 
 st.markdown(
-    '<div class="subtitle">'
-    'OCR-based clothing label analysis and care recommendation system'
-    '</div>',
+    """
+<div class="subtitle">
+OCR-based clothing care label analysis and intelligent care recommendations
+</div>
+""",
     unsafe_allow_html=True
 )
 
@@ -289,17 +290,17 @@ def detect_fabric(text):
 
         if fabric in fabrics:
 
-            item = (
+            value = (
                 f"{percentage}% "
                 f"{fabric.title()}"
             )
 
-            if item not in found:
+            if value not in found:
 
-                found.append(item)
+                found.append(value)
 
 
-    # Denim (Cotton) case
+    # Denim without percentage
     if "DENIM" in text:
 
         if not any(
@@ -311,7 +312,8 @@ def detect_fabric(text):
                 "Denim"
             )
 
-    # Other fabric names
+
+    # Additional fabric names
     for fabric in fabrics:
 
         if fabric in text:
@@ -323,7 +325,6 @@ def detect_fabric(text):
                 if fabric.title() in item:
 
                     exists = True
-
                     break
 
             if not exists:
@@ -397,7 +398,7 @@ def analyze_washing(text):
 
 
 # ============================================================
-# BLEACH
+# BLEACHING
 # ============================================================
 
 def analyze_bleach(text):
@@ -555,7 +556,7 @@ def special_instructions(text):
 
 
 # ============================================================
-# ALERTS
+# CARE ALERTS
 # ============================================================
 
 def create_alerts(
@@ -638,7 +639,7 @@ def create_alerts(
 
 
 # ============================================================
-# UPLOAD
+# IMAGE UPLOAD
 # ============================================================
 
 uploaded_file = st.file_uploader(
@@ -652,7 +653,7 @@ uploaded_file = st.file_uploader(
 
 
 # ============================================================
-# PROCESS
+# MAIN PROCESS
 # ============================================================
 
 if uploaded_file:
@@ -662,19 +663,17 @@ if uploaded_file:
     ).convert("RGB")
 
 
-    # --------------------------------------------------------
+    # ========================================================
     # IMAGE
-    # --------------------------------------------------------
+    # ========================================================
 
     st.markdown(
-        '<div class="section">',
-        unsafe_allow_html=True
-    )
-
-    st.markdown(
-        '<div class="section-title">'
-        'Uploaded Image'
-        '</div>',
+        """
+        <div class="section">
+        <div class="section-title">
+        Uploaded Image
+        </div>
+        """,
         unsafe_allow_html=True
     )
 
@@ -684,14 +683,14 @@ if uploaded_file:
     )
 
     st.markdown(
-        '</div>',
+        "</div>",
         unsafe_allow_html=True
     )
 
 
-    # --------------------------------------------------------
+    # ========================================================
     # OCR
-    # --------------------------------------------------------
+    # ========================================================
 
     with st.spinner(
         "Analyzing clothing care label..."
@@ -702,19 +701,17 @@ if uploaded_file:
         )
 
 
-    # --------------------------------------------------------
-    # OCR OUTPUT
-    # --------------------------------------------------------
+    # ========================================================
+    # EXTRACTED TEXT
+    # ========================================================
 
     st.markdown(
-        '<div class="section">',
-        unsafe_allow_html=True
-    )
-
-    st.markdown(
-        '<div class="section-title">'
-        'Extracted Text'
-        '</div>',
+        """
+        <div class="section">
+        <div class="section-title">
+        Extracted Text
+        </div>
+        """,
         unsafe_allow_html=True
     )
 
@@ -729,32 +726,46 @@ if uploaded_file:
     else:
 
         st.warning(
-            "No readable text detected."
+            "No readable clothing care text was detected."
         )
 
     st.markdown(
-        '</div>',
+        "</div>",
         unsafe_allow_html=True
     )
 
 
-    # --------------------------------------------------------
+    # ========================================================
     # ANALYSIS
-    # --------------------------------------------------------
+    # ========================================================
 
-    fabric = detect_fabric(text)
+    fabric = detect_fabric(
+        text
+    )
 
-    washing = analyze_washing(text)
+    washing = analyze_washing(
+        text
+    )
 
-    bleaching = analyze_bleach(text)
+    bleaching = analyze_bleach(
+        text
+    )
 
-    drying = analyze_drying(text)
+    drying = analyze_drying(
+        text
+    )
 
-    ironing = analyze_ironing(text)
+    ironing = analyze_ironing(
+        text
+    )
 
-    cleaning = analyze_cleaning(text)
+    cleaning = analyze_cleaning(
+        text
+    )
 
-    special = special_instructions(text)
+    special = special_instructions(
+        text
+    )
 
     alerts = create_alerts(
         washing,
@@ -765,9 +776,9 @@ if uploaded_file:
     )
 
 
-    # --------------------------------------------------------
-    # FABRIC
-    # --------------------------------------------------------
+    # ========================================================
+    # FABRIC INFORMATION
+    # ========================================================
 
     st.markdown(
         f"""
@@ -787,19 +798,18 @@ if uploaded_file:
     )
 
 
-    # --------------------------------------------------------
+    # ========================================================
     # CARE INSTRUCTIONS
-    # --------------------------------------------------------
+    # ========================================================
 
     st.markdown(
-        '<div class="section">',
-        unsafe_allow_html=True
-    )
+        """
+        <div class="section">
 
-    st.markdown(
-        '<div class="section-title">'
-        'Care Instructions'
-        '</div>',
+        <div class="section-title">
+        Care Instructions
+        </div>
+        """,
         unsafe_allow_html=True
     )
 
@@ -858,51 +868,49 @@ if uploaded_file:
         unsafe_allow_html=True
     )
 
-
     st.markdown(
-        '</div>',
+        "</div>",
         unsafe_allow_html=True
     )
 
 
-    # --------------------------------------------------------
+    # ========================================================
     # SPECIAL INSTRUCTIONS
-    # --------------------------------------------------------
+    # ========================================================
 
     if special:
 
         st.markdown(
-            '<div class="section">',
+            """
+            <div class="section">
+
+            <div class="section-title">
+            Special Instructions
+            </div>
+            """,
             unsafe_allow_html=True
         )
 
-        st.markdown(
-            '<div class="section-title">'
-            'Special Instructions'
-            '</div>',
-            unsafe_allow_html=True
-        )
-
-        for item in special:
+        for instruction in special:
 
             st.markdown(
                 f"""
                 <div class="symbol">
-                {item}
+                {instruction}
                 </div>
                 """,
                 unsafe_allow_html=True
             )
 
         st.markdown(
-            '</div>',
+            "</div>",
             unsafe_allow_html=True
         )
 
 
-    # --------------------------------------------------------
-    # SYMBOLS
-    # --------------------------------------------------------
+    # ========================================================
+    # CARE SYMBOLS
+    # ========================================================
 
     symbols = detect_symbols(
         image,
@@ -910,14 +918,13 @@ if uploaded_file:
     )
 
     st.markdown(
-        '<div class="section">',
-        unsafe_allow_html=True
-    )
+        """
+        <div class="section">
 
-    st.markdown(
-        '<div class="section-title">'
-        'Care Symbol Detection'
-        '</div>',
+        <div class="section-title">
+        Care Symbol Detection
+        </div>
+        """,
         unsafe_allow_html=True
     )
 
@@ -946,24 +953,23 @@ if uploaded_file:
         )
 
     st.markdown(
-        '</div>',
+        "</div>",
         unsafe_allow_html=True
     )
 
 
-    # --------------------------------------------------------
+    # ========================================================
     # ALERTS
-    # --------------------------------------------------------
+    # ========================================================
 
     st.markdown(
-        '<div class="section">',
-        unsafe_allow_html=True
-    )
+        """
+        <div class="section">
 
-    st.markdown(
-        '<div class="section-title">'
-        'Important Care Alerts'
-        '</div>',
+        <div class="section-title">
+        Important Care Alerts
+        </div>
+        """,
         unsafe_allow_html=True
     )
 
@@ -992,26 +998,14 @@ if uploaded_file:
         )
 
     st.markdown(
-        '</div>',
+        "</div>",
         unsafe_allow_html=True
     )
 
 
-    # --------------------------------------------------------
-    # FINAL REPORT
-    # --------------------------------------------------------
-
-    st.markdown(
-        '<div class="section">',
-        unsafe_allow_html=True
-    )
-
-    st.markdown(
-        '<div class="section-title">'
-        'Final Care Report'
-        '</div>',
-        unsafe_allow_html=True
-    )
+    # ========================================================
+    # FINAL CARE REPORT
+    # ========================================================
 
     special_html = ""
 
@@ -1026,17 +1020,41 @@ if uploaded_file:
     else:
 
         special_html = (
-            "<li>No additional special instructions detected.</li>"
+            "<li>"
+            "No additional special instructions detected."
+            "</li>"
         )
 
 
     alerts_html = ""
 
-    for alert in alerts:
+    if alerts:
 
-        alerts_html += (
-            f"<li>{alert}</li>"
+        for alert in alerts:
+
+            alerts_html += (
+                f"<li>{alert}</li>"
+            )
+
+    else:
+
+        alerts_html = (
+            "<li>"
+            "Follow all care instructions shown on the label."
+            "</li>"
         )
+
+
+    st.markdown(
+        """
+        <div class="section">
+
+        <div class="section-title">
+        Final Care Report
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
 
     st.markdown(
@@ -1100,15 +1118,16 @@ if uploaded_file:
         unsafe_allow_html=True
     )
 
+
     st.markdown(
-        '</div>',
+        "</div>",
         unsafe_allow_html=True
     )
 
 
-    # --------------------------------------------------------
-    # DOWNLOAD
-    # --------------------------------------------------------
+    # ========================================================
+    # DOWNLOAD REPORT
+    # ========================================================
 
     report_text = f"""
 AI-POWERED CLOTHING CARE LABEL ASSISTANT
@@ -1145,7 +1164,7 @@ SPECIAL INSTRUCTIONS
     else:
 
         report_text += (
-            "No additional special instructions detected.\n"
+            "- No additional special instructions detected.\n"
         )
 
 
