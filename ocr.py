@@ -6,8 +6,6 @@ import cv2
 import numpy as np
 import pytesseract
 
-from PIL import Image
-
 
 # ============================================================
 # TESSERACT CONFIGURATION
@@ -27,7 +25,7 @@ elif os.name == "nt":
 
 
 # ============================================================
-# FABRIC LIST
+# FABRIC NAMES
 # ============================================================
 
 FABRICS = [
@@ -47,7 +45,7 @@ FABRICS = [
 
 
 # ============================================================
-# OCR ERROR CORRECTION
+# COMMON OCR CORRECTIONS
 # ============================================================
 
 OCR_CORRECTIONS = {
@@ -100,8 +98,6 @@ OCR_CORRECTIONS = {
 
     "HANDWASH": "HAND WASH",
 
-    "LINE DRY": "LINE DRY",
-
     "DRYFLAT": "DRY FLAT",
 
     "DONOTWRING": "DO NOT WRING",
@@ -113,37 +109,20 @@ OCR_CORRECTIONS = {
 
 
 # ============================================================
-# CARE PHRASES
+# CARE WORDS
 # ============================================================
 
-CARE_PHRASES = [
-    "MACHINE WASH",
-    "HAND WASH",
-    "WASH AT",
-    "WASH COLD",
-    "WASH WITH SIMILAR COLOURS",
-    "WASH WITH SIMILAR COLORS",
-    "WASH INSIDE OUT",
-
-    "DO NOT BLEACH",
-    "NO BLEACH",
-
-    "TUMBLE DRY",
-    "DO NOT TUMBLE DRY",
-    "DRY FLAT",
-    "LINE DRY",
-
-    "IRON LOW",
-    "IRON MEDIUM",
-    "IRON HIGH",
-    "DO NOT IRON",
-    "IRON ON REVERSE",
-
-    "DRY CLEAN",
-    "DO NOT DRY CLEAN",
-
-    "DO NOT WRING",
-    "WRING"
+CARE_WORDS = [
+    "WASH",
+    "BLEACH",
+    "TUMBLE",
+    "DRY",
+    "IRON",
+    "CLEAN",
+    "WRING",
+    "COLOUR",
+    "COLOR",
+    "REVERSE"
 ]
 
 
@@ -176,7 +155,7 @@ def preprocess_image(image):
         interpolation=cv2.INTER_CUBIC
     )
 
-    # Noise removal
+    # Slight noise reduction
     gray = cv2.GaussianBlur(
         gray,
         (3, 3),
@@ -189,9 +168,9 @@ def preprocess_image(image):
         tileGridSize=(8, 8)
     )
 
-    enhanced = clahe.apply(gray)
+    gray = clahe.apply(gray)
 
-    return enhanced
+    return gray
 
 
 # ============================================================
@@ -202,7 +181,7 @@ def create_variants(gray):
 
     variants = []
 
-    # Original
+    # Original enhanced image
     variants.append(gray)
 
     # OTSU
@@ -227,24 +206,14 @@ def create_variants(gray):
 
     variants.append(adaptive)
 
-    # Inverted OTSU
-    _, inverted = cv2.threshold(
-        gray,
-        0,
-        255,
-        cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU
-    )
-
-    variants.append(inverted)
-
     return variants
 
 
 # ============================================================
-# CORRECT OCR TEXT
+# OCR ERROR CORRECTION
 # ============================================================
 
-def correct_ocr(text):
+def correct_ocr_text(text):
 
     text = text.upper()
 
@@ -262,93 +231,42 @@ def correct_ocr(text):
         text
     )
 
-    # Restore common phrases
-    replacements = {
-
-        "MACHINE WASH COLD":
-            "MACHINE WASH COLD",
-
-        "WASH AT 40 C":
-            "WASH AT 40°C",
-
-        "WASH AT 30 C":
-            "WASH AT 30°C",
-
-        "WASH AT 40°C":
-            "WASH AT 40°C",
-
-        "WASH AT 30°C":
-            "WASH AT 30°C",
-
-        "TUMBLE DRY LOW":
-            "TUMBLE DRY LOW",
-
-        "TUMBLE DRY MEDIUM":
-            "TUMBLE DRY MEDIUM",
-
-        "TUMBLE DRY HIGH":
-            "TUMBLE DRY HIGH",
-
-        "IRON LOW":
-            "IRON LOW",
-
-        "IRON MEDIUM":
-            "IRON MEDIUM",
-
-        "IRON HIGH":
-            "IRON HIGH"
-    }
-
-    for wrong, correct in replacements.items():
-
-        text = text.replace(
-            wrong,
-            correct
-        )
-
     return text
 
 
 # ============================================================
-# USEFUL OCR LINE
+# CHECK USEFUL LINE
 # ============================================================
 
 def useful_line(line):
 
-    line = line.strip().upper()
+    line = line.upper().strip()
 
     if not line:
         return False
 
-    # Percentage
-    if re.search(r"\d+\s*%", line):
+    # Fabric percentage
+    if re.search(
+        r"\d+\s*%\s*[A-Z]+",
+        line
+    ):
         return True
 
     # Temperature
-    if re.search(r"\d+\s*°?\s*C", line):
+    if re.search(
+        r"\d+\s*°?\s*C",
+        line
+    ):
         return True
 
-    # Fabric
+    # Fabric names
     for fabric in FABRICS:
 
         if fabric in line:
             return True
 
     # Care words
-    words = [
-        "WASH",
-        "BLEACH",
-        "TUMBLE",
-        "DRY",
-        "IRON",
-        "CLEAN",
-        "WRING",
-        "COLOUR",
-        "COLOR",
-        "REVERSE"
-    ]
-
-    for word in words:
+    for word in CARE_WORDS:
 
         if word in line:
             return True
@@ -357,66 +275,98 @@ def useful_line(line):
 
 
 # ============================================================
-# CLEAN OCR
+# CLEAN SINGLE OCR LINE
 # ============================================================
 
-def clean_text(text):
+def clean_line(line):
 
-    text = correct_ocr(text)
+    line = line.upper().strip()
 
-    lines = []
+    # Remove leading garbage
+    line = re.sub(
+        r"^[^A-Z0-9]+",
+        "",
+        line
+    )
 
-    for raw_line in text.splitlines():
+    # Replace unwanted punctuation
+    line = line.replace(
+        "|",
+        " "
+    )
 
-        line = raw_line.strip()
+    line = line.replace(
+        ":",
+        " "
+    )
 
-        if not line:
-            continue
+    line = line.replace(
+        ";",
+        " "
+    )
 
-        # Remove noisy characters
-        line = re.sub(
-            r"^[^A-Z0-9]+",
-            "",
-            line.upper()
-        )
+    # Fix OCR corrections
+    line = correct_ocr_text(
+        line
+    )
 
-        line = re.sub(
-            r"\s+",
-            " ",
-            line
-        )
+    # Fix percentage
+    line = re.sub(
+        r"(\d+)\s+%",
+        r"\1%",
+        line
+    )
 
-        # Fix percentage spacing
-        line = re.sub(
-            r"(\d+)\s+%",
-            r"\1%",
-            line
-        )
+    # Fix temperature
+    line = re.sub(
+        r"(\d+)\s*°?\s*C\b",
+        r"\1°C",
+        line
+    )
 
-        # Fix temperature
-        line = re.sub(
-            r"(\d+)\s*°?\s*C",
-            r"\1°C",
-            line
-        )
+    # Normalize spaces
+    line = re.sub(
+        r"\s+",
+        " ",
+        line
+    ).strip()
 
-        if useful_line(line):
-
-            if line not in lines:
-                lines.append(line)
-
-    return "\n".join(lines)
+    return line
 
 
 # ============================================================
-# OCR EXTRACTION
+# EXTRACT ONE OCR RESULT
+# ============================================================
+
+def run_single_ocr(image, config):
+
+    try:
+
+        result = pytesseract.image_to_string(
+            image,
+            config=config
+        )
+
+        return result
+
+    except Exception:
+
+        return ""
+
+
+# ============================================================
+# EXTRACT TEXT
 # ============================================================
 
 def extract_text(image):
 
-    gray = preprocess_image(image)
+    gray = preprocess_image(
+        image
+    )
 
-    variants = create_variants(gray)
+    variants = create_variants(
+        gray
+    )
 
     configs = [
         "--psm 6",
@@ -424,30 +374,151 @@ def extract_text(image):
         "--psm 12"
     ]
 
-    results = []
+    all_lines = []
+
+    # --------------------------------------------------------
+    # Run OCR
+    # --------------------------------------------------------
 
     for variant in variants:
 
         for config in configs:
 
-            try:
+            result = run_single_ocr(
+                variant,
+                config
+            )
 
-                text = pytesseract.image_to_string(
-                    variant,
-                    config=config
+            if not result:
+                continue
+
+            for raw_line in result.splitlines():
+
+                line = clean_line(
+                    raw_line
                 )
 
-                if text.strip():
+                if not line:
+                    continue
 
-                    results.append(text)
+                if not useful_line(line):
+                    continue
 
-            except Exception:
-                pass
+                if line not in all_lines:
 
-    combined = "\n".join(results)
+                    all_lines.append(line)
 
-    cleaned = clean_text(
-        combined
+
+    # --------------------------------------------------------
+    # Build final clean result
+    # --------------------------------------------------------
+
+    final_lines = []
+
+    priority_patterns = [
+
+        # Fabric
+        r"\d+\s*%\s*[A-Z]+",
+
+        # Washing
+        r"MACHINE WASH",
+        r"HAND WASH",
+        r"WASH AT",
+        r"WASH COLD",
+        r"WASH WITH",
+
+        # Bleaching
+        r"DO NOT BLEACH",
+        r"NO BLEACH",
+
+        # Drying
+        r"DO NOT TUMBLE DRY",
+        r"TUMBLE DRY",
+        r"DRY FLAT",
+        r"LINE DRY",
+
+        # Ironing
+        r"DO NOT IRON",
+        r"IRON",
+
+        # Cleaning
+        r"DO NOT DRY CLEAN",
+        r"DRY CLEAN",
+
+        # Special
+        r"DO NOT WRING",
+        r"WRING",
+        r"REVERSE",
+
+        # Country
+        r"MADE IN"
+    ]
+
+
+    for pattern in priority_patterns:
+
+        for line in all_lines:
+
+            if re.search(
+                pattern,
+                line
+            ):
+
+                if line not in final_lines:
+
+                    final_lines.append(
+                        line
+                    )
+
+
+    # --------------------------------------------------------
+    # Smart duplicate removal
+    # --------------------------------------------------------
+
+    unique_lines = []
+
+    for line in final_lines:
+
+        normalized = re.sub(
+            r"[^A-Z0-9%° ]",
+            "",
+            line
+        )
+
+        normalized = re.sub(
+            r"\s+",
+            " ",
+            normalized
+        ).strip()
+
+        duplicate = False
+
+        for existing in unique_lines:
+
+            existing_normalized = re.sub(
+                r"[^A-Z0-9%° ]",
+                "",
+                existing
+            )
+
+            existing_normalized = re.sub(
+                r"\s+",
+                " ",
+                existing_normalized
+            ).strip()
+
+            if normalized == existing_normalized:
+
+                duplicate = True
+                break
+
+        if not duplicate:
+
+            unique_lines.append(
+                line
+            )
+
+
+    return "\n".join(
+        unique_lines
     )
-
-    return cleaned.strip()
