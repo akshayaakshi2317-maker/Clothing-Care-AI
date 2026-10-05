@@ -18,79 +18,178 @@ st.set_page_config(
 
 
 # =========================================================
-# CUSTOM DESIGN
+# DARK COLORFUL UI
 # =========================================================
 
 st.markdown("""
 <style>
 
+.stApp {
+    background-color: #0b0d12;
+    color: #ffffff;
+}
+
+.main {
+    background-color: #0b0d12;
+}
+
+h1, h2, h3, h4, p, label {
+    color: #ffffff !important;
+}
+
 .main-title {
     text-align: center;
     font-size: 38px;
     font-weight: 800;
-    color: #4b0082;
+    color: #ffffff !important;
     margin-bottom: 5px;
 }
 
 .subtitle {
     text-align: center;
-    color: #666666;
+    color: #c7c7c7 !important;
     font-size: 17px;
-    margin-bottom: 25px;
+    margin-bottom: 30px;
 }
+
+
+/* Common Card */
 
 .box {
     padding: 18px;
-    border-radius: 14px;
+    border-radius: 15px;
     margin: 12px 0;
-    color: #222222;
+    color: #ffffff !important;
     font-size: 16px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    background-color: #151821;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.35);
 }
+
+.box b {
+    color: #ffffff !important;
+}
+
+
+/* Fabric */
 
 .fabric {
-    background: #f0e7ff;
-    border-left: 7px solid #7b2cbf;
+    background: #211936;
+    border-left: 7px solid #a855f7;
 }
+
+
+/* Washing */
 
 .wash {
-    background: #e3f2fd;
-    border-left: 7px solid #1976d2;
+    background: #10243b;
+    border-left: 7px solid #2196f3;
 }
+
+
+/* Bleaching */
 
 .bleach {
-    background: #ffebee;
-    border-left: 7px solid #e53935;
+    background: #35151b;
+    border-left: 7px solid #ff3b4d;
 }
+
+
+/* Drying */
 
 .dry {
-    background: #fff3e0;
-    border-left: 7px solid #fb8c00;
+    background: #38240f;
+    border-left: 7px solid #ff9800;
 }
+
+
+/* Ironing */
 
 .iron {
-    background: #e8f5e9;
-    border-left: 7px solid #2e7d32;
+    background: #103329;
+    border-left: 7px solid #20d9a0;
 }
+
+
+/* Dry Cleaning */
 
 .clean {
-    background: #efebe9;
-    border-left: 7px solid #795548;
+    background: #302018;
+    border-left: 7px solid #b77961;
 }
+
+
+/* Symbols */
 
 .symbol {
-    background: #f3e5f5;
-    border-left: 7px solid #8e24aa;
+    background: #26142e;
+    border-left: 7px solid #c026d3;
 }
+
+
+/* Alerts */
 
 .alert {
-    background: #fff0f0;
-    border-left: 7px solid #d32f2f;
+    background: #35151b;
+    border-left: 7px solid #ff304f;
 }
 
+
+/* Report */
+
 .report {
-    background: #e8eaf6;
-    border-left: 7px solid #3949ab;
+    background: #151d35;
+    border-left: 7px solid #4f7cff;
+}
+
+
+/* Text Area */
+
+textarea {
+    background-color: #151821 !important;
+    color: #ffffff !important;
+    border: 1px solid #555 !important;
+}
+
+
+/* File uploader */
+
+[data-testid="stFileUploader"] {
+    background-color: #151821;
+    border-radius: 12px;
+    padding: 10px;
+}
+
+
+/* Buttons */
+
+.stDownloadButton button {
+    background-color: #6d28d9;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: bold;
+}
+
+.stDownloadButton button:hover {
+    background-color: #8b5cf6;
+}
+
+
+/* Success message */
+
+[data-testid="stAlert"] {
+    color: white !important;
+}
+
+
+/* Sidebar */
+
+section[data-testid="stSidebar"] {
+    background-color: #101218;
+}
+
+section[data-testid="stSidebar"] * {
+    color: #ffffff !important;
 }
 
 </style>
@@ -102,7 +201,9 @@ st.markdown("""
 # =========================================================
 
 st.markdown(
-    '<div class="main-title">AI-Powered Clothing Care Label Assistant</div>',
+    '<div class="main-title">'
+    'AI-Powered Clothing Care Label Assistant'
+    '</div>',
     unsafe_allow_html=True
 )
 
@@ -112,6 +213,32 @@ st.markdown(
     '</div>',
     unsafe_allow_html=True
 )
+
+
+# =========================================================
+# SIDEBAR
+# =========================================================
+
+with st.sidebar:
+
+    st.header("Project Information")
+
+    st.write(
+        "Upload a clothing care label image. "
+        "The system extracts fabric information "
+        "and clothing care instructions."
+    )
+
+    st.divider()
+
+    st.subheader("Technologies")
+
+    st.write("Python")
+    st.write("Streamlit")
+    st.write("Tesseract OCR")
+    st.write("OpenCV")
+    st.write("NumPy")
+    st.write("Pillow")
 
 
 # =========================================================
@@ -126,10 +253,6 @@ uploaded_file = st.file_uploader(
 )
 
 
-# =========================================================
-# MAIN PROCESS
-# =========================================================
-
 if uploaded_file:
 
     image = Image.open(uploaded_file).convert("RGB")
@@ -140,22 +263,26 @@ if uploaded_file:
         width="stretch"
     )
 
-    # -----------------------------------------------------
+
+    # =====================================================
     # OCR
-    # -----------------------------------------------------
+    # =====================================================
 
     with st.spinner("Analyzing clothing label..."):
+
         raw_text = extract_text(image)
 
-    # -----------------------------------------------------
+
+    # =====================================================
     # CLEAN DISPLAY TEXT
-    # -----------------------------------------------------
+    # =====================================================
 
     def clean_display_text(text):
 
         text = text.upper()
 
         result = []
+
 
         # Fabric
         if "DENIM" in text and "COTTON" in text:
@@ -177,6 +304,7 @@ if uploaded_file:
 
                 if line not in result:
                     result.append(line)
+
 
         # Washing
         match = re.search(
@@ -202,6 +330,7 @@ if uploaded_file:
 
             result.append("HAND WASH")
 
+
         # Bleaching
         if "DO NOT BLEACH" in text:
 
@@ -210,6 +339,7 @@ if uploaded_file:
         elif "NO BLEACH" in text:
 
             result.append("NO BLEACH")
+
 
         # Drying
         if "DO NOT TUMBLE DRY" in text:
@@ -236,6 +366,7 @@ if uploaded_file:
 
             result.append("LINE DRY")
 
+
         # Ironing
         if "DO NOT IRON" in text:
 
@@ -253,7 +384,8 @@ if uploaded_file:
 
             result.append("IRON HIGH")
 
-        # Dry cleaning
+
+        # Dry Cleaning
         if "DO NOT DRY CLEAN" in text:
 
             result.append("DO NOT DRY CLEAN")
@@ -261,6 +393,7 @@ if uploaded_file:
         elif "DRY CLEAN" in text:
 
             result.append("DRY CLEAN")
+
 
         # Country
         match = re.search(
@@ -276,12 +409,14 @@ if uploaded_file:
                 "MADE IN " + match.group(1)
             )
 
+
         # Remove duplicates
         final = []
 
         for item in result:
 
             if item not in final:
+
                 final.append(item)
 
         return "\n".join(final)
@@ -326,6 +461,7 @@ if uploaded_file:
         if "%" in line or "DENIM" in line:
 
             if line not in fabric_lines:
+
                 fabric_lines.append(line)
 
 
@@ -335,7 +471,7 @@ if uploaded_file:
             '<div class="box fabric">'
             '<b>Fabric Composition</b><br><br>'
             + "<br>".join(fabric_lines)
-            + "</div>",
+            + '</div>',
             unsafe_allow_html=True
         )
 
@@ -444,7 +580,7 @@ if uploaded_file:
         ironing = "Not detected"
 
 
-    # Dry cleaning
+    # Dry Cleaning
     if "DO NOT DRY CLEAN" in upper:
 
         cleaning = "Do not dry clean"
@@ -458,7 +594,10 @@ if uploaded_file:
         cleaning = "Not detected"
 
 
-    # Display cards
+    # =====================================================
+    # CARE CARDS
+    # =====================================================
+
     st.markdown(
         f'<div class="box wash">'
         f'<b>Washing</b><br>{washing}'
@@ -525,7 +664,7 @@ if uploaded_file:
 
 
     # =====================================================
-    # ALERTS
+    # IMPORTANT ALERTS
     # =====================================================
 
     st.header("Important Care Alerts")
@@ -616,7 +755,6 @@ if uploaded_file:
 
     st.header("Final Care Report")
 
-
     report = f"""AI-POWERED CLOTHING CARE LABEL ASSISTANT
 
 FABRIC INFORMATION
@@ -638,9 +776,12 @@ IMPORTANT CARE ALERTS
 
 
     st.markdown(
-        f'<div class="box report">'
-        f'<pre>{report}</pre>'
-        f'</div>',
+        '<div class="box report">'
+        '<b>Care Report</b><br><br>'
+        '<pre style="color:white; background:transparent;">'
+        + report +
+        '</pre>'
+        '</div>',
         unsafe_allow_html=True
     )
 
