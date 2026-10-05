@@ -2,7 +2,7 @@ import re
 
 
 # ============================================================
-# SYMBOL DETECTION USING OCR + CARE INFORMATION
+# CARE SYMBOL DETECTION
 # ============================================================
 
 def detect_symbols(image, text=""):
@@ -13,14 +13,14 @@ def detect_symbols(image, text=""):
 
 
     # ========================================================
-    # WASHING SYMBOL
+    # WASHING
     # ========================================================
 
     if (
         "WASH" in text
-        or "MACHINE" in text
+        or "MACHINE WASH" in text
         or "HAND WASH" in text
-        or re.search(r"WASH AT \d+", text)
+        or "WASH AT" in text
     ):
 
         symbols.append(
@@ -29,7 +29,7 @@ def detect_symbols(image, text=""):
 
 
     # ========================================================
-    # BLEACH SYMBOL
+    # BLEACH
     # ========================================================
 
     if (
@@ -44,7 +44,7 @@ def detect_symbols(image, text=""):
 
 
     # ========================================================
-    # TUMBLE DRY SYMBOL
+    # TUMBLE DRY
     # ========================================================
 
     if (
@@ -58,7 +58,7 @@ def detect_symbols(image, text=""):
 
 
     # ========================================================
-    # DRY FLAT SYMBOL
+    # DRY FLAT
     # ========================================================
 
     if "DRY FLAT" in text:
@@ -69,7 +69,7 @@ def detect_symbols(image, text=""):
 
 
     # ========================================================
-    # LINE DRY SYMBOL
+    # LINE DRY
     # ========================================================
 
     if "LINE DRY" in text:
@@ -80,7 +80,7 @@ def detect_symbols(image, text=""):
 
 
     # ========================================================
-    # IRONING SYMBOL
+    # IRON
     # ========================================================
 
     if (
@@ -94,7 +94,7 @@ def detect_symbols(image, text=""):
 
 
     # ========================================================
-    # DRY CLEANING SYMBOL
+    # DRY CLEAN
     # ========================================================
 
     if (
@@ -111,14 +111,14 @@ def detect_symbols(image, text=""):
     # REMOVE DUPLICATES
     # ========================================================
 
-    final_symbols = []
+    result = []
 
     for symbol in symbols:
 
-        if symbol not in final_symbols:
+        if symbol not in result:
 
-            final_symbols.append(
+            result.append(
                 symbol
             )
 
-    return final_symbols
+    return result
