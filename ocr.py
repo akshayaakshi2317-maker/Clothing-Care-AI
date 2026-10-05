@@ -7,28 +7,23 @@ import numpy as np
 import pytesseract
 
 
-# ============================================================
+# =========================================================
 # TESSERACT SETUP
-# Works on Windows + Streamlit Cloud
-# ============================================================
+# =========================================================
 
 def setup_tesseract():
-
-    # Streamlit Cloud / Linux
     tesseract_path = shutil.which("tesseract")
 
     if tesseract_path:
         pytesseract.pytesseract.tesseract_cmd = tesseract_path
         return
 
-    # Windows
     windows_paths = [
         r"C:\Program Files\Tesseract-OCR\tesseract.exe",
         r"C:\Program Files (x86)\Tesseract-OCR\tesseract.exe"
     ]
 
     for path in windows_paths:
-
         if os.path.exists(path):
             pytesseract.pytesseract.tesseract_cmd = path
             return
@@ -37,9 +32,9 @@ def setup_tesseract():
 setup_tesseract()
 
 
-# ============================================================
-# VALID FABRICS
-# ============================================================
+# =========================================================
+# VALID FABRIC NAMES
+# =========================================================
 
 FABRICS = [
     "COTTON",
@@ -57,9 +52,9 @@ FABRICS = [
 ]
 
 
-# ============================================================
-# VALID COUNTRIES
-# ============================================================
+# =========================================================
+# VALID COUNTRY NAMES
+# =========================================================
 
 COUNTRIES = [
     "INDIA",
@@ -74,14 +69,15 @@ COUNTRIES = [
 ]
 
 
-# ============================================================
-# OCR COMMON MISTAKE CORRECTIONS
-# ============================================================
+# =========================================================
+# COMMON OCR ERROR CORRECTION
+# =========================================================
 
 def correct_common_errors(text):
 
     replacements = {
 
+        # Fabric corrections
         "C0TTON": "COTTON",
         "COTT0N": "COTTON",
 
@@ -89,53 +85,39 @@ def correct_common_errors(text):
         "POLYEST3R": "POLYESTER",
 
         "VISC0SE": "VISCOSE",
-
         "RAY0N": "RAYON",
-
         "NYL0N": "NYLON",
 
         "S1LK": "SILK",
-
         "W0OL": "WOOL",
-
         "L1NEN": "LINEN",
 
         "ELAST4NE": "ELASTANE",
-
         "ACRYL1C": "ACRYLIC",
 
         "D3NIM": "DENIM",
-
         "SP4NDEX": "SPANDEX",
 
+        # Care instruction corrections
         "DONOT": "DO NOT",
-
         "MACHINEWASH": "MACHINE WASH",
-
         "HANDWASH": "HAND WASH",
-
         "WASHCOLD": "WASH COLD",
 
         "TUMBLEDRY": "TUMBLE DRY",
-
         "DRYCLEAN": "DRY CLEAN",
-
         "DRYFLAT": "DRY FLAT",
-
         "LINEDRY": "LINE DRY",
 
+        # Temperature corrections
         "MEOIUM": "MEDIUM",
-
         "MEDlUM": "MEDIUM",
-
         "MED1UM": "MEDIUM",
-
         "MEDIOM": "MEDIUM",
 
+        # Country corrections
         "IND0NESIA": "INDONESIA",
-
         "CH1NA": "CHINA",
-
         "VIETN4M": "VIETNAM"
     }
 
@@ -145,54 +127,43 @@ def correct_common_errors(text):
     return text
 
 
-# ============================================================
+# =========================================================
 # TEXT NORMALIZATION
-# ============================================================
+# =========================================================
 
 def normalize_text(text):
 
     text = text.upper()
 
-    # Remove unwanted OCR symbols
     text = text.replace("®", " ")
     text = text.replace("©", " ")
     text = text.replace("™", " ")
 
-    # Replace punctuation with spaces
     text = text.replace("|", " ")
     text = text.replace(":", " ")
     text = text.replace(";", " ")
 
-    # Common OCR corrections
     text = correct_common_errors(text)
 
-    # Remove repeated spaces
     text = re.sub(r"\s+", " ", text)
 
     return text.strip()
 
 
-# ============================================================
+# =========================================================
 # IMAGE PREPROCESSING
-# ============================================================
+# =========================================================
 
 def preprocess_image(image):
 
     img = np.array(image)
 
     if len(img.shape) == 3:
+        img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
 
-        img = cv2.cvtColor(
-            img,
-            cv2.COLOR_RGB2BGR
-        )
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-    gray = cv2.cvtColor(
-        img,
-        cv2.COLOR_BGR2GRAY
-    )
-
-    # Upscale
+    # Increase image size
     gray = cv2.resize(
         gray,
         None,
@@ -209,7 +180,7 @@ def preprocess_image(image):
 
     gray = clahe.apply(gray)
 
-    # Reduce small noise
+    # Remove small noise
     gray = cv2.GaussianBlur(
         gray,
         (3, 3),
@@ -219,9 +190,9 @@ def preprocess_image(image):
     return gray
 
 
-# ============================================================
+# =========================================================
 # THRESHOLD IMAGE
-# ============================================================
+# =========================================================
 
 def threshold_image(gray):
 
@@ -237,11 +208,9 @@ def threshold_image(gray):
     return binary
 
 
-# ============================================================
-# RUN ONE OCR
-# IMPORTANT:
-# DO NOT MERGE MULTIPLE OCR RESULTS
-# ============================================================
+# =========================================================
+# SINGLE OCR
+# =========================================================
 
 def run_single_ocr(image):
 
@@ -259,14 +228,22 @@ def run_single_ocr(image):
         return ""
 
 
-# ============================================================
-# VALID FABRIC EXTRACTION
-# ============================================================
+# =========================================================
+# FABRIC EXTRACTION
+# =========================================================
 
 def extract_fabric(text):
 
     results = []
 
+    # Special handling for denim labels
+    if "DENIM" in text and "COTTON" in text:
+
+        results.append("100% DENIM (COTTON)")
+
+        return results
+
+    # Find percentage + fabric
     pattern = r"(\d{1,3})\s*%\s*([A-Z]+)"
 
     matches = re.findall(
@@ -285,35 +262,12 @@ def extract_fabric(text):
             if line not in results:
                 results.append(line)
 
-    # Denim (Cotton)
-    if "DENIM" in text:
-
-        if "COTTON" in text:
-
-            if not any(
-                "DENIM" in x
-                for x in results
-            ):
-
-                results.append(
-                    "DENIM (COTTON)"
-                )
-
-        elif not any(
-            "DENIM" in x
-            for x in results
-        ):
-
-            results.append(
-                "DENIM"
-            )
-
     return results
 
 
-# ============================================================
-# WASHING
-# ============================================================
+# =========================================================
+# WASHING EXTRACTION
+# =========================================================
 
 def extract_washing(text):
 
@@ -330,11 +284,7 @@ def extract_washing(text):
 
     if match:
 
-        return (
-            "WASH AT "
-            + match.group(1)
-            + "°C"
-        )
+        return "WASH AT " + match.group(1) + "°C"
 
     if "MACHINE WASH COLD" in text:
         return "MACHINE WASH COLD"
@@ -354,9 +304,9 @@ def extract_washing(text):
     return None
 
 
-# ============================================================
-# BLEACHING
-# ============================================================
+# =========================================================
+# BLEACHING EXTRACTION
+# =========================================================
 
 def extract_bleaching(text):
 
@@ -369,9 +319,9 @@ def extract_bleaching(text):
     return None
 
 
-# ============================================================
-# DRYING
-# ============================================================
+# =========================================================
+# DRYING EXTRACTION
+# =========================================================
 
 def extract_drying(text):
 
@@ -399,9 +349,9 @@ def extract_drying(text):
     return None
 
 
-# ============================================================
-# IRONING
-# ============================================================
+# =========================================================
+# IRONING EXTRACTION
+# =========================================================
 
 def extract_ironing(text):
 
@@ -423,9 +373,9 @@ def extract_ironing(text):
     return None
 
 
-# ============================================================
-# DRY CLEANING
-# ============================================================
+# =========================================================
+# DRY CLEANING EXTRACTION
+# =========================================================
 
 def extract_cleaning(text):
 
@@ -438,45 +388,35 @@ def extract_cleaning(text):
     return None
 
 
-# ============================================================
+# =========================================================
 # SPECIAL INSTRUCTIONS
-# ============================================================
+# =========================================================
 
 def extract_special(text):
 
     results = []
 
     if "WASH INSIDE OUT" in text:
-        results.append(
-            "WASH INSIDE OUT"
-        )
+        results.append("WASH INSIDE OUT")
 
     if "DO NOT WRING" in text:
-        results.append(
-            "DO NOT WRING"
-        )
+        results.append("DO NOT WRING")
 
     if "IRON ON REVERSE" in text:
-        results.append(
-            "IRON ON REVERSE"
-        )
+        results.append("IRON ON REVERSE")
 
     if "WASH WITH SIMILAR COLOURS" in text:
-        results.append(
-            "WASH WITH SIMILAR COLOURS"
-        )
+        results.append("WASH WITH SIMILAR COLOURS")
 
     if "WASH WITH SIMILAR COLORS" in text:
-        results.append(
-            "WASH WITH SIMILAR COLORS"
-        )
+        results.append("WASH WITH SIMILAR COLORS")
 
     return results
 
 
-# ============================================================
-# COUNTRY
-# ============================================================
+# =========================================================
+# COUNTRY EXTRACTION
+# =========================================================
 
 def extract_country(text):
 
@@ -491,17 +431,14 @@ def extract_country(text):
 
         if country in COUNTRIES:
 
-            return (
-                "MADE IN "
-                + country
-            )
+            return "MADE IN " + country
 
     return None
 
 
-# ============================================================
-# BUILD CLEAN FINAL OCR
-# ============================================================
+# =========================================================
+# BUILD CLEAN OCR RESULT
+# =========================================================
 
 def build_clean_result(text):
 
@@ -509,138 +446,88 @@ def build_clean_result(text):
 
     final_lines = []
 
-    # -------------------------
     # Fabric
-    # -------------------------
-
     fabrics = extract_fabric(text)
 
     for item in fabrics:
 
         if item not in final_lines:
-
             final_lines.append(item)
 
-    # -------------------------
     # Washing
-    # -------------------------
-
     washing = extract_washing(text)
 
     if washing:
-
         final_lines.append(washing)
 
-    # -------------------------
     # Bleaching
-    # -------------------------
-
     bleaching = extract_bleaching(text)
 
     if bleaching:
-
         final_lines.append(bleaching)
 
-    # -------------------------
     # Drying
-    # -------------------------
-
     drying = extract_drying(text)
 
     if drying:
-
         final_lines.append(drying)
 
-    # -------------------------
     # Ironing
-    # -------------------------
-
     ironing = extract_ironing(text)
 
     if ironing:
-
         final_lines.append(ironing)
 
-    # -------------------------
-    # Dry Cleaning
-    # -------------------------
-
+    # Dry cleaning
     cleaning = extract_cleaning(text)
 
     if cleaning:
-
         final_lines.append(cleaning)
 
-    # -------------------------
-    # Special Instructions
-    # -------------------------
-
+    # Special instructions
     special = extract_special(text)
 
     for item in special:
 
         if item not in final_lines:
-
             final_lines.append(item)
 
-    # -------------------------
     # Country
-    # -------------------------
-
     country = extract_country(text)
 
     if country:
-
         final_lines.append(country)
 
-    # -------------------------
     # Remove duplicates
-    # -------------------------
-
     unique_lines = []
 
     for line in final_lines:
 
         if line not in unique_lines:
-
             unique_lines.append(line)
 
-    return "\n".join(
-        unique_lines
-    )
+    return "\n".join(unique_lines)
 
 
-# ============================================================
-# MAIN FUNCTION USED BY APP.PY
-# ============================================================
+# =========================================================
+# MAIN OCR FUNCTION
+# =========================================================
 
 def extract_text(image):
 
     # Preprocess image
-    gray = preprocess_image(
-        image
-    )
+    gray = preprocess_image(image)
 
-    # Create threshold version
-    binary = threshold_image(
-        gray
-    )
+    # Create binary image
+    binary = threshold_image(gray)
 
-    # --------------------------------------------------------
-    # Run OCR on BOTH versions
-    # But DO NOT concatenate their outputs.
-    # Select the better result.
-    # --------------------------------------------------------
+    # OCR on original processed image
+    text_original = run_single_ocr(gray)
 
-    text_original = run_single_ocr(
-        gray
-    )
+    # OCR on binary image
+    text_binary = run_single_ocr(binary)
 
-    text_binary = run_single_ocr(
-        binary
-    )
-
-    # Choose result with more useful clothing keywords
+    # Clothing-care keywords
     keywords = [
         "COTTON",
         "POLYESTER",
@@ -661,6 +548,7 @@ def extract_text(image):
         "MADE"
     ]
 
+    # Score OCR results
     score_original = sum(
         word in text_original.upper()
         for word in keywords
@@ -671,6 +559,7 @@ def extract_text(image):
         for word in keywords
     )
 
+    # Select the better OCR result
     if score_binary > score_original:
 
         selected_text = text_binary
@@ -679,7 +568,7 @@ def extract_text(image):
 
         selected_text = text_original
 
-    # Build structured clean result
+    # Convert into clean structured output
     final_text = build_clean_result(
         selected_text
     )
