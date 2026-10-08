@@ -4,22 +4,12 @@ from PIL import Image
 
 from ocr import extract_text
 from symbol_detection import detect_symbols
-
-
-# =========================================================
-# PAGE SETTINGS
-# =========================================================
-
 st.set_page_config(
     page_title="Clothing Care AI",
     page_icon="",
     layout="wide"
 )
 
-
-# =========================================================
-# DARK COLORFUL UI
-# =========================================================
 
 st.markdown("""
 <style>
@@ -196,10 +186,6 @@ section[data-testid="stSidebar"] * {
 """, unsafe_allow_html=True)
 
 
-# =========================================================
-# TITLE
-# =========================================================
-
 st.markdown(
     '<div class="main-title">'
     'AI-Powered Clothing Care Label Assistant'
@@ -214,10 +200,6 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-
-# =========================================================
-# SIDEBAR
-# =========================================================
 
 with st.sidebar:
 
@@ -241,9 +223,6 @@ with st.sidebar:
     st.write("Pillow")
 
 
-# =========================================================
-# UPLOAD
-# =========================================================
 
 st.header("Upload Clothing Care Label")
 
@@ -264,18 +243,11 @@ if uploaded_file:
     )
 
 
-    # =====================================================
-    # OCR
-    # =====================================================
 
     with st.spinner("Analyzing clothing label..."):
 
         raw_text = extract_text(image)
 
-
-    # =====================================================
-    # CLEAN DISPLAY TEXT
-    # =====================================================
 
     def clean_display_text(text):
 
@@ -283,8 +255,6 @@ if uploaded_file:
 
         result = []
 
-
-        # Fabric
         if "DENIM" in text and "COTTON" in text:
 
             result.append("100% DENIM (COTTON)")
@@ -305,8 +275,6 @@ if uploaded_file:
                 if line not in result:
                     result.append(line)
 
-
-        # Washing
         match = re.search(
             r"WASH\s*AT\s*(\d+)\s*°?\s*C",
             text
@@ -330,8 +298,6 @@ if uploaded_file:
 
             result.append("HAND WASH")
 
-
-        # Bleaching
         if "DO NOT BLEACH" in text:
 
             result.append("DO NOT BLEACH")
@@ -340,8 +306,6 @@ if uploaded_file:
 
             result.append("NO BLEACH")
 
-
-        # Drying
         if "DO NOT TUMBLE DRY" in text:
 
             result.append("DO NOT TUMBLE DRY")
@@ -366,8 +330,6 @@ if uploaded_file:
 
             result.append("LINE DRY")
 
-
-        # Ironing
         if "DO NOT IRON" in text:
 
             result.append("DO NOT IRON")
@@ -384,8 +346,6 @@ if uploaded_file:
 
             result.append("IRON HIGH")
 
-
-        # Dry Cleaning
         if "DO NOT DRY CLEAN" in text:
 
             result.append("DO NOT DRY CLEAN")
@@ -394,8 +354,6 @@ if uploaded_file:
 
             result.append("DRY CLEAN")
 
-
-        # Country
         match = re.search(
             r"MADE\s+IN\s+"
             r"(INDIA|CHINA|ITALY|UK|VIETNAM|TURKEY|"
@@ -409,8 +367,6 @@ if uploaded_file:
                 "MADE IN " + match.group(1)
             )
 
-
-        # Remove duplicates
         final = []
 
         for item in result:
@@ -426,10 +382,6 @@ if uploaded_file:
 
     upper = text.upper()
 
-
-    # =====================================================
-    # EXTRACTED TEXT
-    # =====================================================
 
     st.header("Extracted Text")
 
@@ -448,9 +400,6 @@ if uploaded_file:
         )
 
 
-    # =====================================================
-    # FABRIC INFORMATION
-    # =====================================================
 
     st.header("Fabric Information")
 
@@ -479,15 +428,8 @@ if uploaded_file:
 
         st.info("Fabric composition not detected.")
 
-
-    # =====================================================
-    # CARE INSTRUCTIONS
-    # =====================================================
-
     st.header("Care Instructions")
 
-
-    # Washing
     washing = "Not detected"
 
     match = re.search(
@@ -513,8 +455,6 @@ if uploaded_file:
 
         washing = "Hand wash"
 
-
-    # Bleaching
     if "DO NOT BLEACH" in upper:
 
         bleaching = "Do not use bleach"
@@ -527,8 +467,6 @@ if uploaded_file:
 
         bleaching = "Not detected"
 
-
-    # Drying
     if "DO NOT TUMBLE DRY" in upper:
 
         drying = "Do not tumble dry"
@@ -557,8 +495,6 @@ if uploaded_file:
 
         drying = "Not detected"
 
-
-    # Ironing
     if "DO NOT IRON" in upper:
 
         ironing = "Do not iron"
@@ -580,7 +516,6 @@ if uploaded_file:
         ironing = "Not detected"
 
 
-    # Dry Cleaning
     if "DO NOT DRY CLEAN" in upper:
 
         cleaning = "Do not dry clean"
@@ -593,10 +528,6 @@ if uploaded_file:
 
         cleaning = "Not detected"
 
-
-    # =====================================================
-    # CARE CARDS
-    # =====================================================
 
     st.markdown(
         f'<div class="box wash">'
@@ -634,10 +565,6 @@ if uploaded_file:
     )
 
 
-    # =====================================================
-    # SYMBOL DETECTION
-    # =====================================================
-
     st.header("Care Symbol Detection")
 
     symbols = detect_symbols(
@@ -662,10 +589,6 @@ if uploaded_file:
             "No care symbols detected."
         )
 
-
-    # =====================================================
-    # IMPORTANT ALERTS
-    # =====================================================
 
     st.header("Important Care Alerts")
 
@@ -746,12 +669,7 @@ if uploaded_file:
 
         st.success(
             "No major care alerts detected."
-        )
-
-
-    # =====================================================
-    # FINAL REPORT
-    # =====================================================
+    
 
     st.header("Final Care Report")
 
@@ -786,9 +704,7 @@ IMPORTANT CARE ALERTS
     )
 
 
-    # =====================================================
-    # DOWNLOAD
-    # =====================================================
+
 
     st.download_button(
         "Download Care Report",
