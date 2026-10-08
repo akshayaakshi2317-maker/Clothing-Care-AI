@@ -1,16 +1,9 @@
-# ============================================================
-# CARE SYMBOL DETECTION
-# ============================================================
-
 def detect_symbols(image, text=""):
 
     text = text.upper()
 
     symbols = []
 
-    # ========================================================
-    # WASHING SYMBOL
-    # ========================================================
 
     if (
         "MACHINE WASH" in text
@@ -25,10 +18,6 @@ def detect_symbols(image, text=""):
             "Washing Symbol"
         )
 
-    # ========================================================
-    # BLEACH SYMBOL
-    # ========================================================
-
     if (
         "DO NOT BLEACH" in text
         or "NO BLEACH" in text
@@ -38,9 +27,6 @@ def detect_symbols(image, text=""):
             "Do Not Bleach Symbol"
         )
 
-    # ========================================================
-    # TUMBLE DRY SYMBOL
-    # ========================================================
 
     if (
         "TUMBLE DRY" in text
@@ -51,19 +37,12 @@ def detect_symbols(image, text=""):
             "Tumble Drying Symbol"
         )
 
-    # ========================================================
-    # DRY FLAT SYMBOL
-    # ========================================================
-
     if "DRY FLAT" in text:
 
         symbols.append(
             "Dry Flat Symbol"
         )
 
-    # ========================================================
-    # LINE DRY SYMBOL
-    # ========================================================
 
     if "LINE DRY" in text:
 
@@ -71,9 +50,6 @@ def detect_symbols(image, text=""):
             "Line Dry Symbol"
         )
 
-    # ========================================================
-    # IRONING SYMBOL
-    # ========================================================
 
     if (
         "IRON LOW" in text
@@ -87,9 +63,6 @@ def detect_symbols(image, text=""):
             "Ironing Symbol"
         )
 
-    # ========================================================
-    # DRY CLEANING SYMBOL
-    # ========================================================
 
     if (
         "DRY CLEAN" in text
@@ -100,9 +73,6 @@ def detect_symbols(image, text=""):
             "Dry Cleaning Symbol"
         )
 
-    # ========================================================
-    # REMOVE DUPLICATES
-    # ========================================================
 
     result = []
 
